@@ -1,0 +1,5 @@
+click
+# Optional tools (install as needed):
+# semgrep (pip install semgrep)
+# bandit (pip install bandit)
+# For node scans: npm (comes with Node.js)
