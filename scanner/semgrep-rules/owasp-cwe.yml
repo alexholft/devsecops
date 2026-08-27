@@ -1,0 +1,85 @@
+rules:
+  - id: python-sql-injection
+    patterns:
+      - pattern-either:
+          - pattern: |
+              cursor.execute($SQL)
+          - pattern: |
+              connection.execute($SQL)
+    languages: [python]
+    message: "Possible SQL injection: use parameterized queries instead of building SQL from user input."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-89"
+      owasp: "Injection"
+      accuracy: "medium"
+
+  - id: python-untrusted-pickle
+    pattern: |
+      pickle.loads($INPUT)
+    languages: [python]
+    message: "Deserialization of untrusted data using pickle can lead to remote code execution. Use safe serializers (json) or validate inputs."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-502"
+      owasp: "Insecure Deserialization"
+      accuracy: "high"
+
+  - id: javascript-eval-xss
+    pattern: |
+      eval($EXPR)
+    languages: [javascript, typescript]
+    message: "Use of eval can lead to code injection or XSS. Avoid eval or sanitize inputs thoroughly."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-95"
+      owasp: "Cross-Site Scripting (XSS) / Injection"
+      accuracy: "medium"
+
+  - id: node-childprocess-exec
+    pattern-either:
+      - pattern: |
+          child_process.exec($CMD)
+      - pattern: |
+          require('child_process').exec($CMD)
+    languages: [javascript, node]
+    message: "Use of exec with unsanitized input may allow command injection. Prefer spawn with argument array or validate inputs."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-78"
+      owasp: "OS Command Injection"
+      accuracy: "high"
+
+  - id: java-runtime-exec
+    pattern: |
+      Runtime.getRuntime().exec($CMD)
+    languages: [java]
+    message: "Runtime.exec with untrusted input may lead to command injection vulnerabilities. Validate or avoid executing shell commands."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-78"
+      owasp: "OS Command Injection"
+      accuracy: "high"
+
+  - id: jsp-xss-print
+    pattern-either:
+      - pattern: out.print($USER_INPUT)
+      - pattern: out.println($USER_INPUT)
+    languages: [java]
+    message: "Outputting unescaped user input to HTML may result in XSS. Escape or validate output."
+    severity: WARNING
+    metadata:
+      cwe: "CWE-79"
+      owasp: "Cross-Site Scripting (XSS)"
+      accuracy: "medium"
+
+  - id: php-eval
+    pattern: |
+      eval($CODE)
+    languages: [php]
+    message: "Use of eval on untrusted data can lead to remote code execution. Avoid eval or ensure strict input validation."
+    severity: ERROR
+    metadata:
+      cwe: "CWE-95"
+      owasp: "Injection"
+      accuracy: "high"
