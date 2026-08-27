@@ -1,0 +1,37 @@
+name: Semgrep scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  semgrep:
+    name: Run Semgrep and upload SARIF
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      - name: Run Semgrep (OWASP/CWE rules)
+        run: |
+          # Run semgrep using the custom ruleset and produce SARIF + JSON outputs
+          semgrep --config scanner/semgrep-rules/owasp-cwe.yml --sarif --output semgrep.sarif ${{ github.workspace }}
+          semgrep --config scanner/semgrep-rules/owasp-cwe.yml --json --output semgrep.json ${{ github.workspace }}
+
+      - name: Upload SARIF to GitHub code scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
